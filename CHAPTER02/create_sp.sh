@@ -1,0 +1,1 @@
+az ad sp create-for-rbac --name="SPForTerraform" --role="Contributor" --scopes="/subscriptions/30d09a80-d006-4494-8511-8fdea034965d"

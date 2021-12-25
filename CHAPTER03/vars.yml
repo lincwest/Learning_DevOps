@@ -1,0 +1,5 @@
+mysql_user: sqladmin
+mysql_password: P4ssw0rd@1234
+packages:
+  - python-mysqldb
+  - mysql-server

@@ -1,10 +1,10 @@
 resource "azurerm_network_interface" "nic" {
-  name                = "orion-nic"
+  name                = "book-nic"
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
 
   ip_configuration {
-    name                          = "orionipconfig"
+    name                          = "bookipconfig"
     subnet_id                     = azurerm_subnet.subnet.id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.pip.id
@@ -12,51 +12,44 @@ resource "azurerm_network_interface" "nic" {
 }
 
 resource "azurerm_public_ip" "pip" {
-  name                = "orion-pip"
-  location            = var.location
+  name                = "book-ip"
+  location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Dynamic"
-  domain_name_label   = "oriondevops"
+  domain_name_label   = "bookdevops01"
 }
 
 resource "azurerm_storage_account" "stor" {
-  name                     = "orionstor"
+  name                     = "bookstor01"
   location                 = var.location
   resource_group_name      = azurerm_resource_group.rg.name
   account_tier             = "Standard"
   account_replication_type = "LRS"
 }
 
-
-
-## GET THE CUSTOM IMAGE CREATED BY PACKER
-data "azurerm_image" "customngnix" {
-  name                = "linuxWeb-0.0.1"
-  resource_group_name = "rg_images"
-}
-
 resource "azurerm_virtual_machine" "vm" {
-  name                  = "orionvm"
+  name                  = "bookvm"
   location              = var.location
   resource_group_name   = azurerm_resource_group.rg.name
-  vm_size               = "Standard_DS2_v2"
-  network_interface_ids = ["${azurerm_network_interface.nic.id}"]
+  vm_size               = "Standard_DS1_v2"
+  network_interface_ids = [azurerm_network_interface.nic.id]
 
-  ## USE THE CUSTOM IMAGE
   storage_image_reference {
-    id = data.azurerm_image.customngnix.id
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "16.04-LTS"
+    version   = "latest"
   }
 
-
   storage_os_disk {
-    name              = "orion-osdisk"
+    name              = "book-osdisk"
     managed_disk_type = "Standard_LRS"
     caching           = "ReadWrite"
     create_option     = "FromImage"
   }
 
   os_profile {
-    computer_name  = var.computer_name
+    computer_name  = "VMBOOK"
     admin_username = var.admin_username
     admin_password = var.admin_password
   }
